@@ -34,7 +34,37 @@ md("""
 """)
 
 md("## 0. Середовище: PostgreSQL 16 через `pgserver` + `jupysql`")
-code('%pip install -q pgserver jupysql "psycopg[binary]"')
+md("""
+`pgserver 0.1.4` публікує wheel-файли лише для Python ≤ 3.12. Його бінарне розширення зібране у стабільному ABI
+(`abi3`), тому на новіших версіях Python (зокрема в Colab) встановлюємо wheel для cp312 з позначкою `abi3`.
+""")
+code('''
+import glob
+import os
+import subprocess
+import sys
+
+
+def pip_install(*args):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *args])
+
+
+pip_install("jupysql", "psycopg[binary]", "fasteners", "platformdirs", "psutil")
+
+if sys.version_info < (3, 13):
+    pip_install("pgserver==0.1.4")
+else:
+    wheel_dir = "/tmp/pgserver_wheel"
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "download", "-q", "pgserver==0.1.4",
+        "--no-deps", "--only-binary=:all:", "--python-version", "3.12", "-d", wheel_dir,
+    ])
+    for whl in glob.glob(f"{wheel_dir}/pgserver-0.1.4-cp312-cp312-*.whl"):
+        os.replace(whl, whl.replace("-cp312-cp312-", "-cp312-abi3-"))
+    pip_install("--no-deps", *glob.glob(f"{wheel_dir}/pgserver-0.1.4-cp312-abi3-*.whl"))
+
+print("Python", sys.version.split()[0], "— залежності встановлено")
+''')
 code('''
 import os
 
