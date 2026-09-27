@@ -1,5 +1,4 @@
 """Збирає notebooks/hw2_ecommerce_churn.ipynb із SQL-файлів і Markdown-текстів."""
-import base64
 import pathlib
 
 import nbformat as nbf
@@ -7,7 +6,6 @@ import nbformat as nbf
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DDL = (ROOT / "sql/01_ddl.sql").read_text(encoding="utf-8").strip()
 DATA = (ROOT / "sql/02_data.sql").read_text(encoding="utf-8").strip()
-PNG = base64.b64encode((ROOT / "er/er_diagram.png").read_bytes()).decode()
 
 cells = []
 md = lambda s, **kw: cells.append(nbf.v4.new_markdown_cell(s.strip(), **kw))
@@ -95,8 +93,8 @@ md("""
 - **Зелений блок** — online-рівень: один денормалізований рядок поточних ознак на клієнта.
 - Суцільні лінії — FOREIGN KEY; пунктирні — логічні зв'язки без FK (AS-OF JOIN і матеріалізація).
 
-![ER-діаграма](attachment:er_diagram.png)
-""", attachments={"er_diagram.png": {"image/png": PNG}})
+![ER-діаграма](https://raw.githubusercontent.com/mashamm/goit-rdb-hw-02/main/er/er_diagram.png)
+""")
 
 md("""
 ### Кардинальності та обов'язковість зв'язків
